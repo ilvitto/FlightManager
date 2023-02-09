@@ -1,0 +1,44 @@
+<f:view
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:t="http://myfaces.apache.org/tomahawk"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:c="http://java.sun.com/jsp/jstl/core">
+    
+    <h:head />
+	
+  <ui:composition template="layout/template.xhtml">
+	<ui:define name="body">
+    
+		<c:if test="#{!manageReservationController.justUpdatePassengers}">
+			<f:event type="preRenderView" listener="#{searchFlightsController.redirectToHome('Access denied!')}" />
+		</c:if>
+		
+		<center>
+			<h2>Passengers updated successfully <IMG alt="success" src="img/success.png" width="30px;" /></h2>
+			<br />
+			
+			<table style="border: 2px; border-style: outset">
+					<tr style="font-weight: bold">
+						<td style="padding-left: 15px;">First Name</td>
+						<td>Surname</td>
+						<td style="width: 25%">ID-Card</td>
+						<td>Date of birth</td>
+					</tr>
+					<ui:repeat var="passenger" value="#{manageReservationController.reservation.passengers}" varStatus="row">
+						<tr>
+							<td style="padding-left: 15px;"><h5>#{passenger.firstName}</h5></td>
+							<td><h5>#{passenger.surname}</h5></td>
+							<td><h5>#{passenger.idCard}</h5></td>
+							<td><h5>#{util.getOnlyDate(passenger.dateOfBirth)}</h5></td>
+						</tr>
+					</ui:repeat>
+				</table>
+				
+			<h:button outcome="show-reservation.xhtml" value="Back to reservation" styleClass="btn btn-primary" style="margin-left: 20px;"></h:button>
+		</center>
+	</ui:define>
+   </ui:composition>
+</f:view>

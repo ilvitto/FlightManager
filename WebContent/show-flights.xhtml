@@ -1,0 +1,92 @@
+<f:view
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:t="http://myfaces.apache.org/tomahawk"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:a="http://xmlns.jcp.org/jsf/passthrough">
+	
+    <h:head />
+	
+   <ui:composition template="layout/template.xhtml">
+	<ui:define name="body">
+	
+		<link rel="stylesheet" href="css/FM-index.css" />
+		
+		<f:event type="preRenderView" listener="#{administratorSessionBean.checkNotLoggedin()}" />
+		
+		<h:panelGroup rendered="#{administratorSessionBean.isLoggedIn()}">
+			
+			<h2>Show flights</h2>
+						
+			<center>
+				<h4  style="color: red">#{insertFlightController.error}</h4>
+				
+				<h:form id="form" style="max-width: 950px;">
+					<table>
+						<tr>
+							<td><b>Starting date</b></td>
+							<td style="padding-right: 15px;"><p:calendar value="#{insertFlightController.fromDate}" ></p:calendar></td>
+						</tr>
+						<tr>
+							<td style="width: 50%;">
+								<h:outputLabel value="From" />
+								<h:selectOneMenu id="source" value="#{insertFlightController.sourceAirportId}">
+									<f:selectItem itemLabel="Any" itemValue="0"></f:selectItem>
+									<f:selectItems value="#{insertFlightController.airports}" var="airport" itemLabel="#{airport.name}" itemValue="#{airport.id}" />
+								</h:selectOneMenu>
+							</td>
+							<td style="width: 60%;">
+								<h:outputLabel value="To"/>
+								<h:selectOneMenu id="destination" value="#{insertFlightController.destinationAirportId}">
+									<f:selectItem itemLabel="Any" itemValue="0"></f:selectItem>
+									<f:selectItems value="#{insertFlightController.airports}" var="airport" itemLabel="#{airport.name}" itemValue="#{airport.id}" />
+								</h:selectOneMenu>
+							</td>
+							<td style="width: 20%"><h:commandButton styleClass="btn btn-primary" action="#{insertFlightController.searchFlights()}" value="View flights"/></td>
+							<td style="width: 20%"><h:button styleClass="btn btn-danger" outcome="#{insertFlightController.backToInsertFlight()}" value="Back to insert flight"/></td>
+						</tr>
+					</table>
+					
+					<h:panelGroup rendered="#{!insertFlightController.flights.isEmpty()}">
+						<table id="results">
+							<tr style="font-weight: bold">
+								<td>Flight number</td>
+								<td>Date</td>
+								<td>Departure time (HH:MM)</td>
+								<td>Flight duration (minutes)</td>
+								<td>Total seats</td>
+								<td>Reserved seats</td>
+								<td style="min-width: 100px;">Price per person</td>
+								<h:panelGroup rendered="#{insertFlightController.sourceAirportId == 0}"><td>From</td></h:panelGroup>
+								<h:panelGroup rendered="#{insertFlightController.destinationAirportId == 0}"><td>To</td></h:panelGroup>
+							</tr>
+							<ui:repeat var="flight" value="#{insertFlightController.flights}">
+								<tr>
+									<td><h:outputText name="flight-number" value="#{flight.flightNumber}"></h:outputText></td>
+									<td style="width: 130px;">#{util.getOnlyDate(flight.departureDate)}</td>
+									<td>
+										<h:outputText name="departure-time" value="#{flight.departureTime}">
+											<f:convertDateTime pattern="HH:mm" />
+										</h:outputText>
+									</td>
+									<td><h:outputText name="duration" value="#{flight.flightDuration}"></h:outputText></td>
+									<td><h:outputText name="total-seat" value="#{flight.totalSeats}"></h:outputText></td>
+									<td><h:outputText name="reserved-seats" value="#{flight.reservedSeats}"></h:outputText></td>
+									<td><h:outputText name="price" value="€ #{flight.pricePerPerson}"></h:outputText></td>
+									
+									<h:panelGroup rendered="#{insertFlightController.sourceAirportId == 0}"><td><h:outputText name="sourceAirport" value="#{flight.sourceAirport.name}"/></td></h:panelGroup>
+									<h:panelGroup rendered="#{insertFlightController.destinationAirportId == 0}"><td><h:outputText name="destinationAirport" value="#{flight.destinationAirport.name}"/></td></h:panelGroup>
+									<h:panelGroup rendered="#{flight.reservedSeats == 0}"><td><h:commandButton class="btn btn-danger" value="Delete" onclick="return confirm('Are you sure you want to delete this flight?')" action="#{insertFlightController.deleteFlight(flight.id.toString())}"/></td></h:panelGroup>
+								</tr>
+							</ui:repeat>
+						</table>
+					</h:panelGroup>
+				</h:form>
+			</center>
+			
+		</h:panelGroup>
+	</ui:define>
+   </ui:composition>
+</f:view>

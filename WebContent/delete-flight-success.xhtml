@@ -1,0 +1,29 @@
+<f:view
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:t="http://myfaces.apache.org/tomahawk"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:c="http://java.sun.com/jsp/jstl/core">
+    
+    <h:head />
+	
+  <ui:composition template="layout/template.xhtml">
+	<ui:define name="body">
+    
+		<c:if test="#{!insertFlightController.justDeleteFlight}">
+			<f:event type="preRenderView" listener="#{searchFlightsController.redirectToHome('Access denied!')}" />
+		</c:if>
+		
+		<center>
+			<h3>The flight has been deleted successfully! <IMG alt="success" src="img/success.png" width="30px;" /></h3>
+			<br />
+				
+			<h:button outcome="index.xhtml" value="Back to home" styleClass="btn btn-danger" />
+			<h:button outcome="insert-flights.xhtml" value="Back to insert flight" styleClass="btn btn-primary" style="margin-left: 20px;"/>
+			<h:button outcome="show-flights.xhtml" value="Back to show flights" styleClass="btn btn-info" style="margin-left: 20px;"/>
+		</center>
+	</ui:define>
+   </ui:composition>
+</f:view>

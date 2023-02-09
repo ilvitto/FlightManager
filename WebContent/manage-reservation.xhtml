@@ -1,0 +1,56 @@
+<f:view
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:t="http://myfaces.apache.org/tomahawk"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+    xmlns:c="http://java.sun.com/jsp/jstl/core">
+	
+    <h:head />
+	
+  <ui:composition template="layout/template.xhtml">
+	<ui:define name="body">
+		
+		<link rel="stylesheet" href="css/FM-index.css" />
+		
+		<h:panelGroup rendered="#{reservationSessionBean.isLoggedIn()}">
+		
+		<f:event type="preRenderView" listener="#{reservationSessionBean.checkNotLoggedin()}" />
+		
+		<center>
+			<h2>Edit passengers</h2>
+			
+			<h:form id="form">
+			<h:panelGroup>
+				
+				<table style="border: 2px; border-style: outset">
+					<tr style="font-weight: bold">
+						<td style="padding-left: 15px;">First Name</td>
+						<td>Surname</td>
+						<td style="width: 25%">ID-Card</td>
+						<td>Date of birth</td>
+					</tr>
+					<ui:repeat var="passenger" value="#{manageReservationController.passengers}" varStatus="row">
+						<tr>
+							<td style="padding-left: 15px;"><h:inputText class="inputform" value="#{passenger.firstName}" /></td>
+							<td><h:inputText class="inputform" value="#{passenger.surname}" /></td>
+							<td><h:inputText class="inputform" value="#{passenger.idCard}" /></td>
+							<td style="padding-right: 15px;"><p:calendar value="#{passenger.dateOfBirth}" maxdate="new Date()" ></p:calendar></td>
+						</tr>
+					</ui:repeat>
+				</table>
+			</h:panelGroup>
+			<br/>
+			<h:button styleClass="btn btn-danger" outcome="show-reservation?faces-redirect=true" value="Cancel" />
+			<h:commandButton styleClass="btn btn-success" style="margin-left: 20px;" action="#{manageReservationController.updatePassengers()}" value="Update" />
+			
+			</h:form>
+		</center>
+			
+		</h:panelGroup>
+		
+	</ui:define>
+   </ui:composition>
+</f:view>

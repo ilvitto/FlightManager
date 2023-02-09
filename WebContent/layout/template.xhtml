@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+<h:head>
+	<title>Flights Manager</title>
+	<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic" />
+	<link rel="stylesheet" href="//cdn.rawgit.com/necolas/normalize.css/master/normalize.css" />
+	<link rel="stylesheet" href="//cdn.rawgit.com/milligram/milligram/master/dist/milligram.min.css" />
+	
+	<link rel="stylesheet" href="css/FM-template.css" />
+	
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" />	
+	
+</h:head>
+
+<body>
+	
+	<div style="position: absolute; top: 0px; height: 100px; background-color: DodgerBlue; width: 100%; padding: 20px;">
+		<h1><a href="index.xhtml">
+				<b><span style="color: black; margin: 0 30px; text-weight: bold;  float: left;">Flight Manager</span></b> 
+				<img src="img/plane.png" alt="logo" style="width: 70px;"/>
+			</a>
+			<h:panelGroup rendered="#{reservationSessionBean.isLoggedIn()}">
+				<h:form style="float: right; margin-right: 30px;">
+					<p style="color: black; font-size: 25px;"><b style="margin-right: 20px;">#{reservationSessionBean.reservation.reservationId}</b>
+						<img src="img/avatar.png" alt="avatar" style="height: 50px;" />
+						<h:commandButton class="btn btn-danger" action="#{reservationLoginController.logout()}" style="margin: 5px 30px; float: right;" value="Logout"></h:commandButton>
+					</p>
+				</h:form>
+			</h:panelGroup>
+			<h:panelGroup rendered="#{administratorSessionBean.isLoggedIn()}">
+				<h:form style="float: right; margin-right: 30px;">
+					<p style="color: black; font-size: 25px;"><b style="margin-right: 20px;">#{administratorSessionBean.administrator.username}</b>
+						<img src="img/avatar.png" alt="avatar" style="height: 50px;" />
+						<h:commandButton class="btn btn-danger" action="#{administratorLoginController.logout()}" style="margin: 5px 30px; float: right;" value="Logout"></h:commandButton>
+					</p>
+				</h:form>
+			</h:panelGroup>
+		</h1>
+	</div>
+	
+	<div class="container" style="margin-top: 120px;">
+		
+		<ui:insert name="body" />
+	</div>
+	
+</body>
+
+</html>

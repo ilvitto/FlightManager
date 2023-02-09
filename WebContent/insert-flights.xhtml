@@ -1,0 +1,236 @@
+<f:view
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:t="http://myfaces.apache.org/tomahawk"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+    xmlns:c="http://java.sun.com/jsp/jstl/core">
+	
+    <h:head />
+	
+   <ui:composition template="layout/template.xhtml">
+	<ui:define name="body">
+		
+		<link rel="stylesheet" href="css/FM-index.css" />
+		
+		<f:event type="preRenderView" listener="#{administratorSessionBean.checkNotLoggedin()}" />
+		
+		<h:panelGroup rendered="#{administratorSessionBean.isLoggedIn()}">
+			
+			<h2>Insert flight</h2>
+			<center>
+				<h4 style="color: red">#{insertFlightController.error}</h4>
+				
+				<div style="float: right">
+					<h:button styleClass="btn btn-primary" outcome="#{insertFlightController.showFlights()}" value="Show flights"></h:button>
+				</div>
+			
+				<h:form id="form" style="max-width: 900px;">	
+					<table>
+						<tr style="font-weight: bold">
+							<td>Flight number</td>
+							<td>Date</td>
+							<td>Departure time (HH:MM)</td>
+							<td>Flight duration (minutes)</td>
+							<td>Passengers</td>
+							<td>Price per person (€)</td>
+							<td>Repeat for (days)</td>
+						</tr>
+						<tr>
+							<td><h:inputText id="flight-number" value="#{insertFlightController.flight.flightNumber}" a:placeholder="F1234"></h:inputText></td>
+							<td style="width: 130px;"><p:calendar id="departure-date" value="#{insertFlightController.flight.departureDate}"></p:calendar></td>
+							<td><h:inputText id="departure-time" value="#{insertFlightController.flight.departureTime}" a:placeholder="17:55">
+									<f:convertDateTime pattern="HH:mm" />
+								</h:inputText>
+							</td>
+							<td><h:inputText id="duration" value="#{insertFlightController.flight.flightDuration}"></h:inputText></td>
+							<td><h:inputText id="passengers" value="#{insertFlightController.flight.totalSeats}"></h:inputText></td>
+							<td><h:inputText id="price" value="#{insertFlightController.flight.pricePerPerson}"></h:inputText></td>
+							<td>
+								<h:selectOneMenu id="repeats" value="#{insertFlightController.repeats}" >
+			   						<f:selectItems value="#{insertFlightController.listRepeats}" var="number" itemLabel="#{number.intValue()}" />
+			   					</h:selectOneMenu>
+							</td>
+						</tr>
+					</table>
+					<table>
+						<tr>
+							<td><h4 style="width: 200px;">Source airport</h4></td>
+							<td>
+								<label for="flightOutExisting">existing
+									<input style="margin-left: 15px;" type="radio" name="flightOut" id="flightOutExisting" value="existing" checked="checked" onchange="showHideSource(this.value)"/>
+								</label>
+							</td>
+							<td>
+								<label for="flightOutNew">new
+									<input style="margin-left: 15px;" type="radio" name="flightOut" id="flightOutNew" value="new" onchange="showHideSource(this.value)"/>
+								</label>
+							</td>
+							<td>
+								<h:inputHidden id="sourceAirport" value="${insertFlightController.sourceAirportType}"></h:inputHidden>
+							</td>
+						</tr>
+						<tr>
+							<td>From</td>
+							<td style="width: 34%">
+								<h:selectOneMenu id="source" value="#{insertFlightController.sourceAirportId}">
+			   						<f:selectItems value="#{insertFlightController.airports}" var="airport" itemLabel="#{airport.name}" itemValue="#{airport.id}" />
+			   					</h:selectOneMenu>
+			   				</td>
+			   				<td style="width: 33%"><h:inputText a:placeholder="Airport name" id="sourceName" value="#{insertFlightController.sourceAirportNew.name}" style="display: none"></h:inputText></td>
+			   				<td style="width: 16%"><h:inputText a:placeholder="ZIP" id="sourceZip" value="#{insertFlightController.sourceAirportNew.ZIP}" style="display: none"></h:inputText></td>
+			   				<td style="width: 15%">
+			   					<h:selectOneMenu id="sourceGmt" value="#{insertFlightController.sourceAirportNew.GMT}" a:placeholder="GMT" style="display: none">
+				   					<f:selectItem itemLabel="GMT" itemDisabled="true" />
+				   					<c:forEach var="i" begin="0" end="24">
+				   						<f:selectItem itemValue="${i-12}" itemLabel="${i-12}" />
+				   					</c:forEach>
+				   				</h:selectOneMenu>
+			   				</td>
+						</tr>
+						<tr>
+							<td><h4>Destination airport</h4></td>
+							<td>
+								<label for="flightBackExisting">existing
+									<input style="margin-left: 15px;" type="radio" name="flightBack" id="flightBackExisting" value="${insertFlightController.destinationAirportType}" checked="checked" onchange="showHideDestination(this.value)"/>
+								</label>
+							</td>
+							<td>
+								<label for="flightBackNew">new
+									<input style="margin-left: 15px;" type="radio" name="flightBack" id="flightBackNew" value="new" onchange="showHideDestination(this.value)"/>
+								</label>
+							</td>
+							<td><h:inputHidden id="destinationAirport" value="${insertFlightController.destinationAirportType}"/></td>
+						</tr>
+						<tr>
+							<td>To</td>
+							<td style="width: 34%"><h:selectOneMenu id="destination" value="#{insertFlightController.destinationAirportId}">
+			   						<f:selectItems value="#{insertFlightController.airports}" var="airport" itemLabel="#{airport.name}" itemValue="#{airport.id}" />
+			   					</h:selectOneMenu>
+			   				</td>
+			   				<td style="width: 33%"><h:inputText a:placeholder="Airport name" id="destinationName" value="#{insertFlightController.destinationAirportNew.name}" style="display: none"></h:inputText></td>
+			   				<td style="width: 16%"><h:inputText a:placeholder="ZIP" id="destinationZip" value="#{insertFlightController.destinationAirportNew.ZIP}" style="display: none"></h:inputText></td>
+			   				<td style="width: 15%">
+				   				<h:selectOneMenu id="destinationGmt" value="#{insertFlightController.destinationAirportNew.GMT}" style="display: none">
+				   					<f:selectItem itemLabel="GMT" itemDisabled="true" />
+				   					<c:forEach var="i" begin="0" end="24">
+				   						<f:selectItem itemValue="${i-12}" itemLabel="${i-12}" />
+				   					</c:forEach>
+				   				</h:selectOneMenu>
+			   				</td>
+						</tr>
+					</table>
+					
+					<h:commandButton styleClass="btn btn-success" onclick="return checkData()" action="#{insertFlightController.saveFlight()}" value="Insert flight" />
+				</h:form>
+			</center>
+			
+			<script type="text/javascript">
+			  function checkData(){
+				if(document.getElementById('form:flight-number').value == ""){
+					alert("Incorrect data entered");
+					return false;
+				}
+				var val = document.getElementById('form:departure-time').value;
+				var reg = /(0[0-9]|1[0-9]|2[0-3])[:]([0-5][0-9])/;
+				if(!val.match(reg)){
+					alert('Format error in "Departure time" field');
+					return false;
+				}
+				
+				sourceAirRadio = document.getElementById('flightOutExisting');
+				destinationAirRadio = document.getElementById('flightBackExisting');
+				sourceAirport = document.getElementById('form:sourceAirport');
+				destinationAirport = document.getElementById('form:destinationAirport');
+
+				if(sourceAirRadio.checked &amp;&amp; destinationAirRadio.checked &amp;&amp; document.getElementById('form:source').value == document.getElementById('form:destination').value){
+					alert("Source and destination can not be equals");
+					return false;
+				}
+
+				if(sourceAirRadio.checked)
+					sourceAirport.value = "existing";
+				else{
+					sourceAirport.value = "new";
+					if(document.getElementById('form:sourceName').value == ""){
+						alert("Insert a valid source airport name");
+						return false;
+					}
+					var zip = document.getElementById('form:sourceZip').value;
+					if(zip == "" || zip != parseInt(zip, 10)){
+						alert("The source airport ZIP code must be a number");
+						return false;
+					}
+					if(document.getElementById('form:sourceGmt').value == ""){
+						document.getElementById('form:sourceGmt').value = "0";
+					}
+				}
+				
+				if(destinationAirRadio.checked)
+					destinationAirport.value = "existing";
+				else{
+					destinationAirport.value = "new";
+					if(document.getElementById('form:destinationName').value == ""){
+						alert("Insert a valid destination airport name");
+						return false;
+					}
+					var zip = document.getElementById('form:destinationZip').value;
+					if(zip == "" || zip != parseInt(zip, 10)){
+						alert("The destination airport ZIP code must be a number");
+						return false;
+					}
+					if(document.getElementById('form:destinationGmt').value == ""){
+						document.getElementById('form:destinationGmt').value = "0";
+					}
+				}
+				
+				return true;
+			  }
+			
+		      function showHideSource(value) {
+			    elementName = document.getElementById("form:sourceName");
+			    elementZip = document.getElementById("form:sourceZip");
+			    elementGmt = document.getElementById("form:sourceGmt");
+			    element = document.getElementById("form:source");
+			    if(value == "new"){
+			    	elementName.style.display = 'block';
+			    	elementZip.style.display = 'block';
+			    	elementGmt.style.display = 'block';
+			    	element.style.display = 'none';
+			    	elementName.value="";
+			    	elementZip.value="";
+			    	elementGmt.value="";
+				}else{
+					elementName.style.display = 'none';
+					elementZip.style.display = 'none';
+					elementGmt.style.display = 'none';
+					element.style.display = 'block';
+		        }
+	      	  }
+		      function showHideDestination(value) {
+	    	  	elementName = document.getElementById("form:destinationName");
+			    elementZip = document.getElementById("form:destinationZip");
+			    elementGmt = document.getElementById("form:destinationGmt");
+			    element = document.getElementById("form:destination");
+			    if(value == "new"){
+			    	elementName.style.display = 'block';
+			    	elementZip.style.display = 'block';
+			    	elementGmt.style.display = 'block';
+			    	element.style.display = 'none';
+			    	elementName.value="";
+			    	elementZip.value="";
+			    	elementGmt.value="";
+				}else{
+					elementName.style.display = 'none';
+					elementZip.style.display = 'none';
+					elementGmt.style.display = 'none';
+					element.style.display = 'block';
+		        }
+	      	  }
+		    </script>
+	    </h:panelGroup>
+	</ui:define>
+   </ui:composition>
+</f:view>

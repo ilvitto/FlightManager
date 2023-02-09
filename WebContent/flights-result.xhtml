@@ -1,0 +1,165 @@
+<f:view
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:t="http://myfaces.apache.org/tomahawk"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:c="http://java.sun.com/jsp/jstl/core">
+	
+    <h:head />
+	
+   <ui:composition template="layout/template.xhtml">
+	<ui:define name="body">
+		<h2>Flights results</h2>
+      	
+      	<h:form id="form">
+			<h4 style="text-align: center;">Forward flights - From <B>#{searchFlightsController.source}</B> to <B>#{searchFlightsController.destination}</B> on <b>#{util.getOnlyDate(searchFlightsController.departureDate)}</b> for <B><span id="npass">#{searchFlightsController.nPassengers}</span></B> passengers</h4>
+			<h:panelGroup rendered="#{!searchFlightsController.flightsOut.isEmpty()}">
+				<table style="border: 2px; border-style: outset">
+					<tr style="font-weight: bold">
+						<td style="padding-left: 15px; width: 25%">From</td>
+						<td>Duration</td>
+						<td style="width: 25%">To</td>
+						<td>Flight number</td>
+						<td>Price per person</td>
+					</tr>
+					<ui:repeat var="flight" value="#{searchFlightsController.flightsOut}" varStatus="row">
+						<tr>
+							<td style="width: 25%; padding-left: 15px"><h4 style="margin-bottom: 2px;">#{flight.sourceAirport.name} - <b>#{util.getOnlyHoursAndMinutes(flight.departureTime)}</b> </h4>
+								<h:panelGroup rendered="#{flight.sourceAirport.GMT > 0}">
+									<i style="font-size: 18px; float: right;">GMT: +#{flight.sourceAirport.GMT}</i>
+								</h:panelGroup> 
+								<h:panelGroup rendered="#{1 > flight.sourceAirport.GMT}">
+									<i style="font-size: 18px; float: right;">GMT: #{flight.sourceAirport.GMT}</i>
+								</h:panelGroup>
+							</td>
+							
+							<td><h5>#{util.getOnlyHoursAndMinutes(flight.flightDuration)}</h5></td>
+							<td style="width: 25%"><h4 style="margin-bottom: 2px;">#{flight.destinationAirport.name} - <b>#{util.getArrivalTime(flight)}</b> </h4>
+								<h:panelGroup rendered="#{flight.destinationAirport.GMT > 0}">
+									<i style="font-size: 18px; float: right;">GMT: +#{flight.destinationAirport.GMT}</i>
+								</h:panelGroup> 
+								<h:panelGroup rendered="#{1 > flight.destinationAirport.GMT}">
+									<i style="font-size: 18px; float: right;">GMT: #{flight.destinationAirport.GMT}</i>
+								</h:panelGroup>
+							</td>
+							<td><h4>#{flight.flightNumber}</h4></td>
+							<td>
+								<label for="#{flight.id}">€ #{flight.pricePerPerson}
+									<input type="radio" name="flightOut" id="#{flight.id}" value="#{flight.id}" checked="#{row.index==0 and searchFlightsController.isAvailable(flight)?'checked':''}" disabled="#{searchFlightsController.isAvailableStr(flight)}"/>
+								</label>
+							</td>
+							<td>
+								<h:panelGroup rendered="#{!searchFlightsController.isAvailable(flight)}" style="color: red"><b>You lost the last seats!</b></h:panelGroup>
+								<h:panelGroup rendered="#{searchFlightsController.availableSeats(flight) > 0 and 6 > searchFlightsController.availableSeats(flight)}" style="color: red"><b> Only #{searchFlightsController.availableSeats(flight)} seats available!</b></h:panelGroup>
+							</td>
+						</tr>
+					</ui:repeat>
+				</table>
+			</h:panelGroup>
+			<h4 style="color: red">#{searchFlightsController.errorOut}</h4>
+			<br/>
+			
+			<h:panelGroup rendered="#{searchFlightsController.oneWay.equals('return')}">
+				<h4 style="text-align: center;">Backward flights - From <B>#{searchFlightsController.destination}</B> to <B>#{searchFlightsController.source}</B> on <b>#{util.getOnlyDate(searchFlightsController.backDate)}</b> for <B>#{searchFlightsController.nPassengers}</B> passengers</h4>
+				<h:panelGroup rendered="#{!searchFlightsController.flightsBack.isEmpty()}">
+					<table style="border: 2px; border-style: outset">
+						<tr style="font-weight: bold">
+							<td style="padding-left: 15px; width: 25%">From</td>
+							<td>Duration</td>
+							<td style="width: 25%">To</td>
+							<td>Flight number</td>
+							<td>Price per person</td>
+						</tr>
+						<ui:repeat var="flight" value="#{searchFlightsController.flightsBack}" varStatus="row">
+							<tr>
+								<td style="padding-left: 15px; width: 25%"><h4>#{flight.sourceAirport.name} - <b>#{util.getOnlyHoursAndMinutes(flight.departureTime)}</b></h4>
+									<h:panelGroup rendered="#{flight.sourceAirport.GMT > 0}">
+										<i style="font-size: 18px; float: right;">GMT: +#{flight.sourceAirport.GMT}</i>
+									</h:panelGroup> 
+									<h:panelGroup rendered="#{1 > flight.sourceAirport.GMT}">
+										<i style="font-size: 18px; float: right;">GMT: #{flight.sourceAirport.GMT}</i>
+									</h:panelGroup>
+								</td>
+								<td><h5>#{util.getOnlyHoursAndMinutes(flight.flightDuration)}</h5></td>
+								<td style="width: 25%"><h4 style="margin-bottom: 2px;">#{flight.destinationAirport.name} - <b>#{util.getArrivalTime(flight)}</b></h4>
+									<h:panelGroup rendered="#{flight.destinationAirport.GMT > 0}">
+										<i style="font-size: 18px; float: right;">GMT: +#{flight.destinationAirport.GMT}</i>
+									</h:panelGroup> 
+									<h:panelGroup rendered="#{1 > flight.destinationAirport.GMT}">
+										<i style="font-size: 18px; float: right;">GMT: #{flight.destinationAirport.GMT}</i>
+									</h:panelGroup>
+								</td>
+								<td><h4>#{flight.flightNumber}</h4></td>
+								<td>
+									<label for="#{flight.id}">€ #{flight.pricePerPerson}
+										<input type="radio" name="flightBack" id="#{flight.id}" value="#{flight.id}" checked="#{row.index==0?'cheched':''}"/>
+									</label>
+								</td>
+							</tr>
+						</ui:repeat>
+					</table>
+				</h:panelGroup>
+			</h:panelGroup>
+			<h:inputHidden id="selectedIdOut" value="#{insertReservationController.flightOut}"></h:inputHidden>
+			<h:inputHidden id="selectedIdBack" value="#{insertReservationController.flightBack}"></h:inputHidden>
+			<h:inputHidden id="nPassengers" value="#{insertReservationController.nPassengers}"></h:inputHidden>
+			
+			<h4 style="color: red">#{searchFlightsController.errorBack}</h4>
+			
+			<h:commandButton style="float: right" class="btn btn-success" rendered="#{searchFlightsController.existResult()}" onclick="return checkSelected()" action="confirm?faces-redirect=true" value="Confirm Flights"></h:commandButton>
+			<h:commandButton style="float: left" class="btn btn-danger" action="#{searchFlightsController.stopConversationAndReturnHome()}" value="Cancel"></h:commandButton>
+
+		</h:form>
+	    
+	    <script type="text/javascript">
+		      function checkSelected(){
+		    	  
+			    var flightsOut = new Array();
+			    var flightsBack = new Array();
+			    document.getElementById("form:selectedIdOut").value = 0;
+			    document.getElementById("form:selectedIdBack").value = 0;
+			    
+		  		if(document.getElementsByName('flightOut') != null)
+					flightsOut = document.getElementsByName('flightOut');
+				if(document.getElementsByName('flightBack') != null)
+			  		flightsBack = document.getElementsByName('flightBack');
+				
+			  	var flightOutIdSelected = null;
+			  	var flightBackIdSelected = null;
+				var i;
+				//dare la possibilità di scegliere un solo volo se l'altro non presente
+				
+			  	for(i=0; i &lt; flightsOut.length; i++){
+			  		if(flightsOut[i].checked)
+			  			flightOutIdSelected = flightsOut[i].value;
+				}
+				if(flightsOut.length &gt; 0){
+					if(flightOutIdSelected == null){
+						alert("Select a forward flight");
+						return false;
+					}else
+						document.getElementById("form:selectedIdOut").value = flightOutIdSelected;
+		      	}
+				
+			  	for(i=0; i &lt; flightsBack.length; i++){
+			  		if(flightsBack[i].checked)
+			  			flightBackIdSelected = flightsBack[i].value;
+				}
+			  	if(flightsBack.length &gt; 0){
+				  	if(flightBackIdSelected == null){
+						alert("Select a back flight");
+						return false;
+				  	}else
+				  		document.getElementById("form:selectedIdBack").value = flightBackIdSelected;
+		      	}
+			  	document.getElementById("form:nPassengers").value = document.getElementById("npass").innerHTML;
+			  	
+				return true;
+			  }
+		</script>
+	    
+	</ui:define>
+</ui:composition>
+</f:view>

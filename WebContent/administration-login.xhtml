@@ -1,0 +1,37 @@
+<f:view
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:a="http://xmlns.jcp.org/jsf/passthrough">
+	
+    <h:head />
+	
+   <ui:composition template="layout/template.xhtml">
+	<ui:define name="body">
+		
+		<link rel="stylesheet" href="css/FM-index.css" />
+		
+		<f:event type="preRenderView" listener="#{administratorSessionBean.checkLoggedin()}" />
+		<h:panelGroup rendered="#{!administratorSessionBean.isLoggedIn()}">
+			<h2>Administration login</h2>
+			
+			<h4 style="color: red; text-align: center;">#{administratorLoginController.error}</h4>
+			
+			<h:form>
+				<center>
+					<label for="username">Username</label>
+					<h:inputText id="username" a:placeholder="Insert username" value="#{administratorLoginController.administratorData.username}" style="width: 350px;"></h:inputText><br/>
+					<label for="password">Password</label>
+					<h:inputSecret id="password" a:placeholder="Insert password" value="#{administratorLoginController.administratorData.password}" style="width: 350px;"></h:inputSecret><br/>
+					<h:button styleClass="btn btn-danger" outcome="index.xhtml" value="Cancel" />
+					<h:commandButton styleClass="btn btn-success" action="#{administratorLoginController.login()}" value="Login" style="margin-left: 20px;">
+						<f:ajax onevent="click" execute="#{reservationLoginController.unsetLogin()}"></f:ajax>
+					</h:commandButton>
+				</center>
+			</h:form>
+		</h:panelGroup>
+		
+	</ui:define>
+   </ui:composition>
+</f:view>

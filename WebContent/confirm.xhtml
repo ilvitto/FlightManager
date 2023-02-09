@@ -1,0 +1,181 @@
+<f:view
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:t="http://myfaces.apache.org/tomahawk"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:a="http://xmlns.jcp.org/jsf/passthrough"
+    xmlns:c="http://java.sun.com/jsp/jstl/core">
+	
+	<link rel="stylesheet" href="css/FM-index.css" />
+	
+    <h:head />
+	
+   <ui:composition template="layout/template.xhtml">
+	<ui:define name="body">
+		
+		<f:event type="preRenderView" listener="#{insertReservationController.reserveSeats()}" />
+		
+		<h2>Insert reservation data</h2>
+		
+		<h:form id="form" onsubmit="return checkData()">
+		
+			<h3>Insert email address</h3>
+			<p:inputText id="email" value="#{insertReservationController.reservation.email}" style="max-width: 350px;" validatorMessage="Email is not valid" onchange="validateEmail(this);" >
+			      <f:validateRegex pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$" />
+			</p:inputText>
+			
+			<p id="popup" style="display: none; background-color: yellow; position: absolute; left: 380px; top: 0px; width: 250px; padding: 10px;">The email address allows you to view and modify the reservation in <b>My Booking</b> section</p>
+			<img src="img/info.png" alt="info" style="width: 20px;" onmouseover="document.getElementById('popup').style.display = 'block';" onmouseout="document.getElementById('popup').style.display = 'none';" />
+			
+			<p id="emailLabel" style="color: red; position: absolute;"></p>
+			<p:watermark for="email" value="Email Address" />
+			<p:message for="email" style="display: block; max-width: 350px;" />
+			
+			<br/><br/>
+			
+			<h:inputHidden id="fo" value="#{insertReservationController.flightOut}" />
+			<h:inputHidden id="fb" value="#{insertReservationController.flightBack}" />
+			<h:inputHidden id="np" value="#{insertReservationController.nPassengers}" />
+			
+			<h3>Insert passengers data</h3>
+			<table>
+				<tr>
+					<td></td>
+					<td><b>First name</b></td>
+					<td><b>Surname</b></td>
+					<td><b>ID-Card</b></td>
+					<td><b>Date of birth</b></td>
+				</tr>
+				<ui:repeat var="passenger" value="#{insertReservationController.passengers}" varStatus="row"> 
+					<tr>
+						<td><b>Passenger #{row.index + 1}</b></td>
+						<td><h:inputText class="inputform" name="name" a:placeholder="First name" value="#{passenger.firstName}" /></td>
+						<td><h:inputText class="inputform" name="surname" a:placeholder="Surname" value="#{passenger.surname}" /></td>
+						<td><h:inputText class="inputform" name="idcard" a:placeholder="Identity card number" value="#{passenger.idCard}" /></td>
+						<td><p:calendar class="inputform" widgetVar="mycal#{row.index}" name="birth" a:placeholder="dd/mm/yy" value="#{passenger.dateOfBirth}" maxdate="new Date()"></p:calendar></td>
+					</tr>
+				</ui:repeat>
+			</table>
+			
+<!-- 			PRICE BOX -->
+			<table id="price" style="position: fixed; top: 10px; right: 10px; width: 300px; background-color: RoyalBlue; opacity: 0.5; color: black; padding: 5px; border: 1px; border-style: solid;" onmouseover="opacityOne()" onmouseout="opacityZero()">
+				<tr>
+					<td></td>
+					<td><h3><b>Price</b></h3></td>
+					<td></td>
+				</tr>
+				<tr>
+					<td></td>
+					<td>per person</td>
+					<td style="text-align: center;">x #{insertReservationController.nPassengers}</td>
+				</tr>
+				<tr>
+					<h:panelGroup rendered="#{insertReservationController.flightOut != 0}">
+						<td><h5>Forward flight:</h5></td>
+						<td><h5>€ #{insertReservationController.forwardFlight.pricePerPerson}</h5></td>
+						<td><h5>€ #{insertReservationController.getTotalPriceForward()}</h5></td>
+					</h:panelGroup>
+				</tr>
+				<tr>
+					<h:panelGroup rendered="#{insertReservationController.flightBack != 0}">
+						<td><h5>Backward flight:</h5></td>
+						<td><h5>€ #{insertReservationController.returnFlight.pricePerPerson}</h5></td>
+						<td><h5>€ #{insertReservationController.getTotalPriceReturn()} </h5></td>
+					</h:panelGroup>
+				</tr>
+				<tr>
+					<td><h4><b>Total:</b></h4></td>
+					<td></td>
+					<td><h4>
+						<h:panelGroup rendered="#{insertReservationController.discounted}">
+							<del>€ #{insertReservationController.getTotalPriceFR()}</del>
+						</h:panelGroup>
+						<h:panelGroup rendered="#{!insertReservationController.discounted}">
+							<b>€ #{insertReservationController.getTotalPriceFR()}</b>
+						</h:panelGroup>
+						</h4>
+					</td>
+				</tr>
+				<h:panelGroup rendered="#{insertReservationController.isDiscounted()}">
+					<tr >
+						<td>
+							<p style="color: red; padding-top: 15px;"><b>Special offer!</b></p>
+						</td>
+						<td>
+							<p id="popupDiscount" style="display: none; background-color: yellow; position: absolute; left: -280px; top: 200px; width: 250px; padding: 10px;">#{insertReservationController.strategy.description}</p>
+							<img src="img/info.png" alt="discount" style="width: 20px;" onmouseover="document.getElementById('popupDiscount').style.display = 'block';" onmouseout="document.getElementById('popupDiscount').style.display = 'none';" />
+						</td>
+						<td style="padding-top: 15px;"><h4><b>€ #{insertReservationController.reservation.finalPrice}</b></h4></td>
+					</tr>
+				</h:panelGroup> 
+			</table>
+			<h:inputHidden id="flightOut" value="#{insertReservationController.flightOut}"></h:inputHidden>
+			<h:inputHidden id="flightBack" value="#{insertReservationController.flightBack}"></h:inputHidden>
+			<h:inputHidden id="nPassengers" value="#{insertReservationController.nPassengers}"></h:inputHidden>
+	
+			<h:commandButton style="float: right" styleClass="btn btn-success" action="#{insertReservationController.saveReservation()}" onclick="return checkData()" value="Confirm Reservation" />
+		
+		</h:form>
+		<h:form id="form-cancel">
+			<h:commandButton style="float: left" styleClass="btn btn-danger" actionListener="#{insertReservationController.cleanTemporaryReservations()}" action="#{searchFlightsController.stopConversationAndReturnHome()}" value="Cancel" ></h:commandButton>
+			<h:commandButton styleClass="btn btn-warning" actionListener="#{insertReservationController.cleanTemporaryReservations()}" action="flights-result" value="Back" style="margin-left: 20px;"></h:commandButton>
+		</h:form>
+		
+		
+		<script type="text/javascript">
+			function validateEmail(emailField){
+		        var reg = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+		        if (reg.test(emailField.value) == false) {
+			        document.getElementById('form:email').style.border = "3px solid #FF0000";
+			        document.getElementById('emailLabel').innerHTML = "Invalid email address";
+		            
+		            return false;
+		        }
+		        else{
+		        	document.getElementById('form:email').style.border = "1px solid grey";
+			        document.getElementById('emailLabel').innerHTML = "";
+				}
+		        return true;
+			}
+			function opacityOne(){
+				document.getElementById('price').style.opacity='1';
+			}
+			function opacityZero(){
+				document.getElementById('price').style.opacity='0.65';
+			}
+			function checkData(){
+				var names =  document.getElementsByClassName("inputform");
+				var i = 0;
+				var error = false;
+
+				//check email
+				if(document.getElementById("form:email").value == ""){
+					alert("Insert a valid email address");
+					return false;
+				}
+				//check all fields
+				for(i=0; i &lt; names.length; i++){
+					if(names[i].value == "")
+						error = true;
+				}
+				//check date of birth
+				for(i=0; i &lt; document.getElementById("form:np").value; i++){
+					if(PF('mycal'+i).getDate() == null)
+						error = true;
+				}
+				if(error == true){
+					alert("Incomplete data entered");
+					return false;
+				}
+				
+				document.getElementById("form:flightOut").value = document.getElementById("form:fo").value;
+				document.getElementById("form:flightBack").value = document.getElementById("form:fb").value;
+				document.getElementById("form:nPassengers").value = document.getElementById("form:np").value;
+				return true;
+			}
+		</script>
+	</ui:define>
+	</ui:composition>
+</f:view>

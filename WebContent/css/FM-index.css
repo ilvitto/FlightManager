@@ -1,0 +1,16 @@
+.noborder{
+	border: 0;
+}
+.noborderPad{
+	border: 0;
+	padding-right: 15px !important;
+}
+input{
+	text-align: center;
+}
+table{
+	margin: 0;
+}
+#price td{
+	padding: 1px;
+}
